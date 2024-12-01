@@ -18,4 +18,4 @@ run in Terminal (when located in the folder where the file is):
 `chmod +x here-come-the-fuzz.py`
 
 and then:
-`./here-come-the-fuzz.py path/to/the/CSV/with/data/indiv.csv path/to/where/you/want/html/to/output/what-the-fuzz-up.html`
+`./here-come-the-fuzz.py path/to/the/CSV/with/data/indiv.csv path/to/where/you/want/html/to/output/what-the-fuzz.html`
