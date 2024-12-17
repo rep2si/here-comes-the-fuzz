@@ -29,7 +29,7 @@ To generate the HTML file, first ensure that the script is executable:
 
 Then call it with the csv and desired output file as arguments:
 
-`./here-come-the-fuzz.py path/to/the/CSV/with/data/indiv.csv path/to/where/you/want/html/to/output/what-the-fuzz.html`
+`./here-comes-the-fuzz.py path/to/the/CSV/with/data/indiv.csv path/to/where/you/want/html/to/output/what-the-fuzz.html`
 
 The generated html file will include [fuse.js](https://www.fusejs.io/) in raw form. The entire script has to be included in the file itself as modern browsers' cross-scripting protection prevents loading this from a separate local file.
 
