@@ -1,4 +1,4 @@
-# fuzzy-census
+# here-comes-the-fuzz
 Code to generate searchable database to find IDs.
 
 This assumes you have a CSV file with the following variables:
