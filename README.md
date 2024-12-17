@@ -8,6 +8,8 @@ The user should be able to provide a csv with arbitrary variable names, and a co
 
 ## Current status
 
+![Current interface (screenshot)](./screenshot.jpg "Current interface (screenshot)")
+
 This small project was born out of specific needs we met while working on the [rep<sup>2</sup>si project](https://rep2si.github.io/) project: offline fuzzy-searching (i.e., with tolerance for misspelling) across village census data stored in a csv file. The script currently transforms the csv data into json and relies on [Fuse.js](https://github.com/krisk/Fuse) to implement fuzzy searching across specific fields. It generates a single, self-contained html page that can be opened in any browser.
 
 The script currently assumes that the csv follows a specific structure, and there is no possibility for the user to configure which variables are targeted by the search fields in the generated html file. We are working on a more general version of the script that meets the goal outlined above. PRs are welcome.
