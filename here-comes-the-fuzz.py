@@ -1,5 +1,31 @@
 #!/usr/bin/env python3
-import csv, json, sys
+import os, argparse, csv, json, sys, configparser
+
+# Named argument parser
+parser = argparse.ArgumentParser()
+parser.add_argument("-i", "--input", help="input csv")
+parser.add_argument("-o", "--output", help="output html")
+parser.add_argument("-c", "--config", help="config.ini location")
+args = parser.parse_args()
+
+# Set defaults is options not passed
+input = args.input if args.input else "./input.csv"
+output = args.output if args.output else "./output.html"
+config = args.config if args.config else "./config.ini"
+
+# Print message and quit if any required file missing
+miss_file = False
+
+for f in [input, output, config]:
+    if not os.path.isfile(f):
+        print("File %s not found. Use --%s to specify its location." % (f, f))
+        miss_file = True
+
+if miss_file:
+    quit()
+
+
+print("potato")
 
 if len(sys.argv) > 2:
     csv_file = sys.argv[1]
