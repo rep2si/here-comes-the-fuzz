@@ -6,6 +6,14 @@ A python script to generate a self-contained html page allowing for offline fuzz
 
 The user should be able to provide a csv with arbitrary variable names, and a configuration file specifying which of these variables are targeted in an arbitrary number of search fields.
 
+## Requirements
+
+This script relies on tomllib, which is built-in since python 3.11.
+
+## Config details
+
+Types supported: fuzzy and "tick"
+
 ## Current status
 
 ![Current interface (screenshot)](./screenshot.jpg "Current interface (screenshot)")

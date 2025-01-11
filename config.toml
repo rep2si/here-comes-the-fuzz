@@ -1,0 +1,23 @@
+[filters]
+
+    [filters.uid]
+    csv_col = "uid"
+    type = "fuzzy"
+    text = "Search by identifier"
+
+    [filters.name]
+    csv_col = "name"
+    type = "fuzzy"
+    text = "Search by full name"
+
+    [filters.gender]
+    csv_col = "gender"
+    type = "tick"
+    text = "Filter by gender" # set to "" if no text desired
+    options = ["m", "f"] # ensure these correspond to values in csv
+
+    [filters.occupation]
+    csv_col = "occupation"
+    type = "fuzzy"
+    text = "Search by occupation"
+
