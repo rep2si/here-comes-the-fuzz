@@ -4,15 +4,17 @@
     csv_col = "uid"
     type = "fuzzy"
     text = "Search by identifier"
+    threshold = 0.4
 
     [filters.name]
     csv_col = "name"
     type = "fuzzy"
     text = "Search by full name"
+    threshold = 0.4
 
     [filters.gender]
     csv_col = "gender"
-    type = "tick"
+    type = "checkbox"
     text = "Filter by gender" # set to "" if no text desired
     options = ["m", "f"] # ensure these correspond to values in csv
 
@@ -20,4 +22,31 @@
     csv_col = "occupation"
     type = "fuzzy"
     text = "Search by occupation"
+    threshold = 0.4
 
+[table]
+
+    [table.col1]
+    width = 0.2
+    header_text = "Identifier"
+    csv_col = "uid"
+
+    [table.col2]
+    width = 0.3
+    header_text = "Full Name"
+    csv_col = "name"
+
+    [table.col3]
+    width = 0.1
+    header_text = "Gender"
+    csv_col = "gender"
+
+    [table.col4]
+    width = 0.1
+    header_text = "Age"
+    csv_col = "age"
+
+    [table.col5]
+    width = 0.3
+    header_text = "Occupation"
+    csv_col = "occupation"
