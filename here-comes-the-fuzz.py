@@ -11,12 +11,12 @@ args = parser.parse_args()
 # Set defaults is options not passed
 input = args.input if args.input else "./input.csv"
 output = args.output if args.output else "./output.html"
-config = args.config if args.config else "./config.ini"
+conf = args.config if args.config else "./config.ini"
 
 # Print message and quit if any required file missing
 miss_file = False
 
-for f in [input, output, config]:
+for f in [input, conf]:
     if not os.path.isfile(f):
         print("File %s not found. Use --%s to specify its location." % (f, f))
         miss_file = True
@@ -24,19 +24,36 @@ for f in [input, output, config]:
 if miss_file:
     quit()
 
-
-print("potato")
-
-if len(sys.argv) > 2:
-    csv_file = sys.argv[1]
-else:
-    print("Provide csv as first argument, and output html file as second.")
+# Read config file
+config = configparser.ConfigParser()
+try:
+    config.read(conf)
+except:
+    print("Could not parse config file. Check its contents.")
     quit()
 
-with open(csv_file, newline='', encoding='utf-8') as f:
+search_fields = list(config['filters'])
+search_types = dict(config['filters'])
+
+inputs_string = "<div>\n"
+
+for i in search_fields:
+    # TODO: handle other fields
+    inputs_string += '    <input type="text" id="%s" placeholder="Search by %s">\n' % (i, i)
+
+inputs_string += "</div>"
+
+print(inputs_string)
+
+## Check if the configuration file exists
+
+config.read(config)
+print(config.get('other', 'use_anonymous'))  # Outputs 'True'
+
+with open(input, newline='', encoding='utf-8') as f:
     jsonified = json.dumps([dict(r) for r in csv.DictReader(f)])
 
-first_bit = r"""<!DOCTYPE html>
+head = r"""<!DOCTYPE html>
 <html lang="en">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,10 +75,15 @@ first_bit = r"""<!DOCTYPE html>
             background-color: #45a049;
         }
     </style>
-</head>
+</head>"""
+
+body_1 = r"""
 <body>
     <h1>Fuzzy Find</h1>
-    <div>
+"""
+
+tmp=r"""
+        <!---
         <input type="text" id="indivID" placeholder="Filter by IndivID">
         <input type="text" id="fullname" placeholder="Search by Full Name">
         <label><input type="checkbox" id="maleCheckbox" value="male"> Male</label>
@@ -70,7 +92,9 @@ first_bit = r"""<!DOCTYPE html>
         <input type="text" id="fathername" placeholder="Search by Father Name">
         <input type="text" id="mothername" placeholder="Search by Mother Name">
         <input type="text" id="spousename" placeholder="Search by Spouse Name">
-    </div>
+        --->"""
+
+table = r"""
     <div id="results-container">
         <table id="results" style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -88,8 +112,9 @@ first_bit = r"""<!DOCTYPE html>
             </thead>
             <tbody></tbody>
         </table>
-    </div>
-    <!--- Load fuse.js --->
+    </div> """
+
+body_3 = r""" <!--- Load fuse.js --->
     <script>
     /**
      * Fuse.js v7.0.0 - Lightweight fuzzy-search (http://fusejs.io)
@@ -248,7 +273,8 @@ last_bit = r""";
 </body>
 </html>"""
 
-fuzz_me_good = first_bit + jsonified + last_bit
+# fuzz_me_good = first_bit + jsonified + last_bit
+fuzz_me_good = head + body_1 + inputs_string
 
 # Write out the result
 with open(sys.argv[2], "w", encoding="utf-8") as file:
