@@ -2,6 +2,7 @@
 
 # TODO add non-fuzzy filters. Use id as example
 # TODO add support for images
+# TODO add support for copy button
 # TODO Check what happens if we have 0 fuzzy filters
 # TODO Test with only one filter
 # TODO re-write so we only iterate over list of filters once in the beginning
@@ -136,31 +137,12 @@ fuse += """
 with open(input, newline='', encoding='utf-8') as f:
     fuse += json.dumps([dict(r) for r in csv.DictReader(f)])
 
-# // Initialize Fuse.js for each field separately
-# fuseName = new Fuse(processedData, { keys: ["full_name"], threshold: 0.4, includeScore: true });
-# fuseFather = new Fuse(processedData, { keys: ["fathersname"], threshold: 0.4, includeScore: true });
-# fuseMother = new Fuse(processedData, { keys: ["mothersname"], threshold: 0.4, includeScore: true });
-# fuseSpouse = new Fuse(processedData, { keys: ["spousesname"], threshold: 0.4, includeScore: true });
-
 # Initialise fuse.js
 fuse += "\n\n        // Initialize Fuse.js for each field separately\n\n"
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
     if fconf["type"] == "fuzzy":
         fuse += '        fuse%s = new Fuse(data, { keys: ["%s"], threshold: %s, includeScore: true });\n' % (fconf["csv_col"], fconf["csv_col"], fconf["threshold"])
-
-# // Get input elements
-# const indivIDInput = document.getElementById("indivID");
-# const fullNameInput = document.getElementById("fullname");
-# const fatherNameInput = document.getElementById("fathername");
-# const motherNameInput = document.getElementById("mothername");
-# const spouseNameInput = document.getElementById("spousename");
-# const locationInput = document.getElementById("location");
-# const resultsList = document.querySelector("#results tbody");
-
-# // Get selected genders from checkboxes
-# const maleChecked = document.getElementById("maleCheckbox").checked;
-# const femaleChecked = document.getElementById("femaleCheckbox").checked;
 
 # Get input elements
 # TODO add other elements required
@@ -230,6 +212,7 @@ fuse += """
 
           // for now
           console.log(combinedResults)
+          displayResults(combinedResults)
       };
 
 """
@@ -244,12 +227,39 @@ for f in config["filters"]:
         for o in fconf["options"] :
             fuse += '      document.getElementById("%s%sCheckbox").addEventListener("change", () => debounce(performSearch, debounceDelay));\n' % (f, o)
 
-      # // Input event listeners with debouncing
-      # [indivIDInput, fullNameInput, fatherNameInput, motherNameInput, spouseNameInput, locationInput].forEach(input => {
-      #     input.addEventListener("input", () => debounce(performSearch, debounceDelay));
-      # });
-      # document.getElementById("maleCheckbox").addEventListener("change", performSearch);
-      # document.getElementById("femaleCheckbox").addEventListener("change", performSearch);
+
+# Display function
+fuse +="""
+      // Display results using table formatting
+      const resultsList = document.querySelector("#results tbody");
+      const displayResults = (results) => {
+          if (results.length === 0) {
+              resultsList.innerHTML = "<tr><td colspan='%s'>No results found</td></tr>";
+          } else {
+              resultsList.innerHTML = results
+                  .map(item => {
+                      const {""" % (len(config["table"]))
+
+count = 0
+for c in config["table"]:
+    fuse += "%s, " % (config["table"][c]["csv_col"]) if count < len(config["table"]) -1 else "%s} = item;" % (config["table"][c]["csv_col"])
+    count += 1
+
+fuse += """
+                       return `
+                           <tr> """
+
+for c in config["table"]:
+    fuse += '\n                               <td>${%s ?? "N/A"}</td>' % (config["table"][c]["csv_col"])
+
+fuse += """
+                          </tr>
+                      `;
+                  })
+                  .join("");
+          }
+      };
+"""
 
 body_2 = """
     </script>
@@ -277,32 +287,6 @@ last_bit = r""";
           displayResults(filteredResults);
       };
 
-      // Display results using table formatting
-      const displayResults = (results) => {
-          if (results.length === 0) {
-              resultsList.innerHTML = "<tr><td colspan='9'>No results found</td></tr>";
-          } else {
-              resultsList.innerHTML = results
-                  .map(item => {
-                      const { IndivID, firstname, caste, gender, age, location, fathersname, mothersname, spousesname } = item;
-                      const name = `${firstname ?? "Unknown"} ${caste ?? "Unknown"}`;
-                      return `
-                          <tr>
-                              <td><button onclick="copyToClipboard('${IndivID}')" class="copy-button">Copy</button></td>
-                              <td>${IndivID ?? "N/A"}</td>
-                              <td>${name}</td>
-                              <td>${gender ?? "Unspecified"}</td>
-                              <td>${age ?? "N/A"}</td>
-                              <td>${location ?? "N/A"}</td>
-                              <td>${fathersname ?? "N/A"}</td>
-                              <td>${mothersname ?? "N/A"}</td>
-                              <td>${spousesname ?? "N/A"}</td>
-                          </tr>
-                      `;
-                  })
-                  .join("");
-          }
-      };
 
       // Copy to Clipboard Function
       function copyToClipboard(text) {

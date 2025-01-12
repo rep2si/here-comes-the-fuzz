@@ -3,13 +3,13 @@
     [filters.uid]
     csv_col = "uid"
     type = "fuzzy"
-    text = "Search by identifier"
+    text = "Fuzzy search by identifier"
     threshold = 0.4
 
     [filters.name]
     csv_col = "name"
     type = "fuzzy"
-    text = "Search by full name"
+    text = "Fuzzy search by full name"
     threshold = 0.4
 
     [filters.gender]
@@ -21,7 +21,7 @@
     [filters.occupation]
     csv_col = "occupation"
     type = "fuzzy"
-    text = "Search by occupation"
+    text = "Fuzzy search by occupation"
     threshold = 0.4
 
 [table]
