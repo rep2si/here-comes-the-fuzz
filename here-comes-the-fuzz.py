@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-# TODO add support for copy button
-# TODO Check what happens if we have 0 fuzzy filters
-# TODO Test with only one filter
-# TODO re-write so we only iterate over list of filters once in the beginning
 # TODO check with multiple filters
+# TODO re-write so we only iterate over list of filters once in the beginning
 # TODO in an ideal world, filter before fuzzy, as that would be computationally superior
 
 import os, argparse, csv, json, tomllib
@@ -35,19 +32,11 @@ if miss_file:
 with open("config.toml", "rb") as f:
     config = tomllib.load(f)
 
-# Number of filters. There is definitely a more elegant way to do this
-# TODO: improve
-fuzzy_n = 0
-filters_n = 0
-checkbox_n = 0
-for f in config["filters"]:
-    fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
-        fuzzy_n += 1
-    elif fconf["type"] == "filter":
-        filters_n += 1
-    elif fconf["type"] == "checkbox":
-        checkbox_n += 1
+# Number of filters.
+fuzzy_n = sum(1 for col in config["filters"] if config["filters"][col]["type"] == "fuzzy")
+filters_n = sum(1 for col in config["filters"] if config["filters"][col]["type"] == "filter")
+checkbox_n = sum(1 for col in config["filters"] if config["filters"][col]["type"] == "checkbox")
+table_nocopy_n = sum(1 for col in config["table"] if config["table"][col]["type"] != "copy_button")
 
 # Head
 head = r"""<!DOCTYPE html>
@@ -77,8 +66,8 @@ head = r"""<!DOCTYPE html>
 
 body_1 = r"""
     <body>
-        <h1>Fuzzy Find</h1>
-"""
+        <h1>%s</h1>
+""" % (config["misc"]["title"])
 
 # Inputs
 inputs = "        <div>\n"
@@ -98,6 +87,7 @@ inputs += "        </div>"
 
 # Prepare table
 table = r"""
+        <br />
         <div id="results-container">
             <table id="results" style="width: 100%; border-collapse: collapse;">
                 <thead>
@@ -143,11 +133,12 @@ with open(input, newline='', encoding='utf-8') as f:
     fuse += json.dumps([dict(r) for r in csv.DictReader(f)])
 
 # Initialise fuse.js
-fuse += "\n\n        // Initialize Fuse.js for each field separately\n\n"
-for f in config["filters"]:
-    fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
-        fuse += '        fuse%s = new Fuse(data, { keys: ["%s"], threshold: %s, includeScore: true });\n' % (fconf["csv_col"], fconf["csv_col"], fconf["threshold"])
+if fuzzy_n > 0:
+    fuse += "\n\n        // Initialize Fuse.js for each field separately\n\n"
+    for f in config["filters"]:
+        fconf = config["filters"][f] # filter config
+        if fconf["type"] == "fuzzy":
+            fuse += '        fuse%s = new Fuse(data, { keys: ["%s"], threshold: %s, includeScore: true });\n' % (fconf["csv_col"], fconf["csv_col"], fconf["threshold"])
 
 # Get input elements
 # TODO add other elements required
@@ -203,15 +194,18 @@ fuse += """
           });
           }
 
-          const combinedResults = intersection("""
+"""
 
-count = 0
-for f in config["filters"]:
-    fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
-        fuse += '%sResults, ' % (fconf["csv_col"]) if count < fuzzy_n -1 else '%sResults);' % (fconf["csv_col"])
-        count += 1
-
+if fuzzy_n > 0:
+    fuse += "          const combinedResults = intersection("
+    count = 0
+    for f in config["filters"]:
+        fconf = config["filters"][f] # filter config
+        if fconf["type"] == "fuzzy":
+            fuse += '%sResults, ' % (fconf["csv_col"]) if count < fuzzy_n -1 else '%sResults);' % (fconf["csv_col"])
+            count += 1
+else:
+    fuse += "          const combinedResults = data"
 
 fuse += "\n          filteredResults = combinedResults;"
 
@@ -291,8 +285,9 @@ fuse +="""
 
 count = 0
 for c in config["table"]:
-    fuse += "%s, " % (config["table"][c]["csv_col"]) if count < len(config["table"]) -1 else "%s} = item;" % (config["table"][c]["csv_col"])
-    count += 1
+    if config["table"][c]["type"] in ["text", "image"]:
+        fuse += "%s, " % (config["table"][c]["csv_col"]) if count < table_nocopy_n - 1 else "%s} = item;" % (config["table"][c]["csv_col"])
+        count += 1
 
 fuse += """
                        return `
@@ -303,6 +298,8 @@ for c in config["table"]:
         fuse += '\n                               <td>${%s ?? "N/A"}</td>' % (config["table"][c]["csv_col"])
     elif config["table"][c]["type"] == "image":
         fuse += '\n                               <td><img src="${%s}" style="max-width: ${%s}px; max-height: ${%s}px;" /></td>' % (config["table"][c]["csv_col"], config["table"][c]["img_max_width"],  config["table"][c]["img_max_height"])
+    elif config["table"][c]["type"] == "copy_button":
+        fuse += '\n                               <td><button onclick="copyToClipboard(\'${%s}\')" class="copy-button">%s</button></td>' % (config["table"][c]["csv_col_to_copy"], config["table"][c]["button_text"])
 
 fuse += """
                           </tr>
@@ -313,17 +310,7 @@ fuse += """
       };
 """
 
-body_2 = """
-    </script>
-</body>
-</html>"""
-
-
-
-last_bit = r""";
-
-
-
+copy_function = r""";
       // Copy to Clipboard Function
       function copyToClipboard(text) {
           if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -355,19 +342,15 @@ last_bit = r""";
           }
           document.body.removeChild(tempInput);
       }
+"""
 
-      // Input event listeners with debouncing
-      [indivIDInput, fullNameInput, fatherNameInput, motherNameInput, spouseNameInput, locationInput].forEach(input => {
-          input.addEventListener("input", () => debounce(performSearch, debounceDelay));
-      });
-      document.getElementById("maleCheckbox").addEventListener("change", performSearch);
-      document.getElementById("femaleCheckbox").addEventListener("change", performSearch);
+body_2 = """
     </script>
 </body>
 </html>"""
 
 # fuzz_me_good = first_bit + jsonified + last_bit
-fuzz_me_good = head + body_1 + inputs + table + fuse + body_2
+fuzz_me_good = head + body_1 + inputs + table + fuse + copy_function + body_2
 print(fuzz_me_good)
 
 # Write out the result

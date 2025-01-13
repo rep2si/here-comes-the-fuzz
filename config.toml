@@ -5,11 +5,11 @@
     type = "filter"
     text = "Filter by identifier"
 
-    [filters.name]
-    csv_col = "name"
-    type = "fuzzy"
-    text = "Fuzzy search by full name"
-    threshold = 0.4
+    # [filters.name]
+    # csv_col = "name"
+    # type = "fuzzy"
+    # text = "Fuzzy search by full name"
+    # threshold = 0.4
 
     [filters.gender]
     csv_col = "gender"
@@ -17,11 +17,11 @@
     text = "Filter by gender" # set to "" if no text desired
     options = ["m", "f"] # ensure these correspond to values in csv
 
-    [filters.occupation]
-    csv_col = "occupation"
-    type = "fuzzy"
-    text = "Fuzzy search by occupation"
-    threshold = 0.4
+    # [filters.occupation]
+    # csv_col = "occupation"
+    # type = "fuzzy"
+    # text = "Fuzzy search by occupation"
+    # threshold = 0.4
 
 [table]
 
@@ -34,31 +34,41 @@
     csv_col = "image" # this col of csv should contain relative path of images
 
     [table.col1]
+    type = "copy_button"
+    width = 0.1
+    header_text = "Copy ID"
+    button_text = "Copy ID"
+    csv_col_to_copy = "uid"
+
+    [table.col2]
     type = "text"
     width = 0.1
     header_text = "Identifier"
     csv_col = "uid"
 
-    [table.col2]
+    [table.col3]
     type = "text"
     width = 0.3
     header_text = "Full Name"
     csv_col = "name"
 
-    [table.col3]
+    [table.col4]
     type = "text"
     width = 0.1
     header_text = "Gender"
     csv_col = "gender"
 
-    [table.col4]
+    [table.col5]
     type = "text"
     width = 0.1
     header_text = "Age"
     csv_col = "age"
 
-    [table.col5]
+    [table.col6]
     type = "text"
-    width = 0.3
+    width = 0.1
     header_text = "Occupation"
     csv_col = "occupation"
+
+[misc]
+title = "Here comes the fuzz"
