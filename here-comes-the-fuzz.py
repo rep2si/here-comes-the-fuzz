@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO add checkboxes
 # TODO add support for images
 # TODO add support for copy button
 # TODO Check what happens if we have 0 fuzzy filters
@@ -41,12 +40,15 @@ with open("config.toml", "rb") as f:
 # TODO: improve
 fuzzy_n = 0
 filters_n = 0
+checkbox_n = 0
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
     if fconf["type"] == "fuzzy":
         fuzzy_n += 1
     elif fconf["type"] == "filter":
         filters_n += 1
+    elif fconf["type"] == "checkbox":
+        checkbox_n += 1
 
 # Head
 head = r"""<!DOCTYPE html>
@@ -91,7 +93,7 @@ for f in config["filters"]:
         if fconf["text"] != "":
             inputs += "            <span>%s: </span>\n" % (fconf["text"])
         for o in fconf["options"] :
-            inputs += '            <label><input type="checkbox" id="%s%sCheckbox" value="%s">%s</label>\n' % (f, o, o, o)
+            inputs += '            <label><input type="checkbox" id="%s%sCheckbox" value="%s" checked>%s</label>\n' % (f, o, o, o)
 
 inputs += "        </div>"
 
@@ -157,7 +159,7 @@ for f in config["filters"]:
         fuse += '        const %sInput =  document.getElementById("%s")\n' % (fconf["csv_col"], fconf["csv_col"])
     if fconf["type"] == "checkbox":
         for o in fconf["options"] :
-            fuse += '        const %s%sChecked = document.getElementById("%s%sCheckbox").checked;\n' % (f, o, f, o)
+            fuse += '        const %s%sCheckbox = document.getElementById("%s%sCheckbox");\n' % (f, o, f, o)
 
 # Debounce function
 fuse += r"""
@@ -214,7 +216,8 @@ for f in config["filters"]:
 
 fuse += "\n          filteredResults = combinedResults;"
 
-if fuzzy_n > 0 :
+# Add filters
+if filters_n > 0 :
     for f in config["filters"]:
         fconf = config ["filters"][f]
         if fconf["type"] == "filter":
@@ -223,9 +226,21 @@ if fuzzy_n > 0 :
            filteredResults = filteredResults.filter(item => {
                return item.%s.includes(%sQuery) 
            });
-           console.log(filteredResults);
            """ % (fconf["csv_col"], fconf["csv_col"], fconf["csv_col"])
 
+# Add checkboxes
+if checkbox_n > 0 :
+    for f in config["filters"]:
+        fconf = config ["filters"][f]
+        if fconf["type"] == "checkbox":
+                for o in fconf["options"] :
+                    # inputs += '            <label><input type="checkbox" id="%s%sCheckbox" value="%s">%s</label>\n' % (f, o, o, o)
+                    fuse +="""
+           // filter for %s %s
+           filteredResults = filteredResults.filter(item => {
+               return !(!(%s%sCheckbox.checked) && item.%s === "%s")
+           });
+                    """ % (f, o, f, o, fconf["csv_col"], o)
 
       #     // Further filter results based on other active criteria
       #     const filteredResults = combinedResults.filter(item => {
@@ -261,8 +276,7 @@ for f in config["filters"]:
         fuse += '      %sInput.addEventListener("input", () => debounce(performSearch, debounceDelay));\n' % (fconf["csv_col"])
     if fconf["type"] == "checkbox":
         for o in fconf["options"] :
-            fuse += '      document.getElementById("%s%sCheckbox").addEventListener("change", () => debounce(performSearch, debounceDelay));\n' % (f, o)
-
+            fuse += '      %s%sCheckbox.addEventListener("change", performSearch);\n' % (f, o)
 
 # Display function
 fuse +="""
