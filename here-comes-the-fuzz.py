@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-# TODO add non-fuzzy filters. Use id as example
+# TODO add checkboxes
 # TODO add support for images
 # TODO add support for copy button
 # TODO Check what happens if we have 0 fuzzy filters
 # TODO Test with only one filter
 # TODO re-write so we only iterate over list of filters once in the beginning
+# TODO check with multiple filters
+# TODO in an ideal world, filter before fuzzy, as that would be computationally superior
 
-import os, argparse, csv, json, sys, tomllib
-
+import os, argparse, csv, json, tomllib
 # Named argument parser
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help="input csv")
@@ -36,13 +37,16 @@ if miss_file:
 with open("config.toml", "rb") as f:
     config = tomllib.load(f)
 
-
-# Number of fuzzy filters. There is definitely a more elegant way to do this
+# Number of filters. There is definitely a more elegant way to do this
+# TODO: improve
 fuzzy_n = 0
+filters_n = 0
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
     if fconf["type"] == "fuzzy":
         fuzzy_n += 1
+    elif fconf["type"] == "filter":
+        filters_n += 1
 
 # Head
 head = r"""<!DOCTYPE html>
@@ -80,7 +84,7 @@ inputs = "        <div>\n"
 
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
+    if fconf["type"] in ["fuzzy", "filter"]:
         # TODO: handle other fields
         inputs += '            <input type="text" id="%s" placeholder="%s">\n' % (fconf["csv_col"], fconf["text"])
     elif fconf["type"] == "checkbox":
@@ -149,7 +153,7 @@ for f in config["filters"]:
 fuse += "\n        //Get input elements\n\n"
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
+    if fconf["type"] in ["fuzzy", "filter"]:
         fuse += '        const %sInput =  document.getElementById("%s")\n' % (fconf["csv_col"], fconf["csv_col"])
     if fconf["type"] == "checkbox":
         for o in fconf["options"] :
@@ -174,7 +178,7 @@ fuse +="""
 # trim values passed to fuzzy search
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
+    if fconf["type"] in ["fuzzy", "filter"]:
         fuse += '          const %sQuery = %sInput.value.trim();\n' % (fconf["csv_col"], fconf["csv_col"])
 
 # Perform fuzzy search
@@ -205,14 +209,46 @@ for f in config["filters"]:
     fconf = config["filters"][f] # filter config
     if fconf["type"] == "fuzzy":
         fuse += '%sResults, ' % (fconf["csv_col"]) if count < fuzzy_n -1 else '%sResults);' % (fconf["csv_col"])
-    count += 1
+        count += 1
+
+
+fuse += "\n          filteredResults = combinedResults;"
+
+if fuzzy_n > 0 :
+    for f in config["filters"]:
+        fconf = config ["filters"][f]
+        if fconf["type"] == "filter":
+           fuse +="""
+           // filter for %s
+           filteredResults = filteredResults.filter(item => {
+               return item.%s.includes(%sQuery) 
+           });
+           console.log(filteredResults);
+           """ % (fconf["csv_col"], fconf["csv_col"], fconf["csv_col"])
+
+
+      #     // Further filter results based on other active criteria
+      #     const filteredResults = combinedResults.filter(item => {
+      #         const matchesID = indivIDQuery ? item.IndivID?.toLowerCase().includes(indivIDQuery) : true;
+      #         const matchesGender =
+      #             (maleChecked && item.gender?.toLowerCase() === "male") ||
+      #             (femaleChecked && item.gender?.toLowerCase() === "female") ||
+      #             (!maleChecked && !femaleChecked); // Include all if no checkbox is selected
+      #         const matchesLocation = locationQuery ? item.location?.toLowerCase().includes(locationQuery) : true;
+
+      #         // Include if all active criteria are met
+      #         return matchesID && matchesGender && matchesLocation;
+      #     });
+
+      #     // Display results
+      #     displayResults(filteredResults);
+      # };
 
 
 fuse += """
 
           // for now
-          console.log(combinedResults)
-          displayResults(combinedResults)
+          displayResults(filteredResults)
       };
 
 """
@@ -221,7 +257,7 @@ fuse += """
 fuse += "      // Input event listeners with debouncing\n"
 for f in config["filters"]:
     fconf = config["filters"][f] # filter config
-    if fconf["type"] == "fuzzy":
+    if fconf["type"] in ["fuzzy", "filter"]:
         fuse += '      %sInput.addEventListener("input", () => debounce(performSearch, debounceDelay));\n' % (fconf["csv_col"])
     if fconf["type"] == "checkbox":
         for o in fconf["options"] :
@@ -270,22 +306,6 @@ body_2 = """
 
 last_bit = r""";
 
-          // Further filter results based on other active criteria
-          const filteredResults = combinedResults.filter(item => {
-              const matchesID = indivIDQuery ? item.IndivID?.toLowerCase().includes(indivIDQuery) : true;
-              const matchesGender =
-                  (maleChecked && item.gender?.toLowerCase() === "male") ||
-                  (femaleChecked && item.gender?.toLowerCase() === "female") ||
-                  (!maleChecked && !femaleChecked); // Include all if no checkbox is selected
-              const matchesLocation = locationQuery ? item.location?.toLowerCase().includes(locationQuery) : true;
-
-              // Include if all active criteria are met
-              return matchesID && matchesGender && matchesLocation;
-          });
-
-          // Display results
-          displayResults(filteredResults);
-      };
 
 
       // Copy to Clipboard Function

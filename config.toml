@@ -2,9 +2,8 @@
 
     [filters.uid]
     csv_col = "uid"
-    type = "fuzzy"
-    text = "Fuzzy search by identifier"
-    threshold = 0.4
+    type = "filter"
+    text = "Filter by identifier"
 
     [filters.name]
     csv_col = "name"
