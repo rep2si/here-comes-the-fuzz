@@ -25,27 +25,40 @@
 
 [table]
 
+    [table.col0]
+    type = "image"
+    width = 0.1
+    img_max_height = 150
+    img_max_width = 100
+    header_text = "Photograph"
+    csv_col = "image" # this col of csv should contain relative path of images
+
     [table.col1]
-    width = 0.2
+    type = "text"
+    width = 0.1
     header_text = "Identifier"
     csv_col = "uid"
 
     [table.col2]
+    type = "text"
     width = 0.3
     header_text = "Full Name"
     csv_col = "name"
 
     [table.col3]
+    type = "text"
     width = 0.1
     header_text = "Gender"
     csv_col = "gender"
 
     [table.col4]
+    type = "text"
     width = 0.1
     header_text = "Age"
     csv_col = "age"
 
     [table.col5]
+    type = "text"
     width = 0.3
     header_text = "Occupation"
     csv_col = "occupation"

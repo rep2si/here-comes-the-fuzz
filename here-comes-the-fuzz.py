@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO add support for images
 # TODO add support for copy button
 # TODO Check what happens if we have 0 fuzzy filters
 # TODO Test with only one filter
@@ -300,7 +299,10 @@ fuse += """
                            <tr> """
 
 for c in config["table"]:
-    fuse += '\n                               <td>${%s ?? "N/A"}</td>' % (config["table"][c]["csv_col"])
+    if config["table"][c]["type"] == "text":
+        fuse += '\n                               <td>${%s ?? "N/A"}</td>' % (config["table"][c]["csv_col"])
+    elif config["table"][c]["type"] == "image":
+        fuse += '\n                               <td><img src="${%s}" style="max-width: ${%s}px; max-height: ${%s}px;" /></td>' % (config["table"][c]["csv_col"], config["table"][c]["img_max_width"],  config["table"][c]["img_max_height"])
 
 fuse += """
                           </tr>
