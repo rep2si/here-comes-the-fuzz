@@ -28,7 +28,7 @@ if miss_file:
     quit()
 
 # Read config file
-with open("config.toml", "rb") as f:
+with open(conf, "rb") as f:
     config = tomllib.load(f)
 
 # Number of filters.
