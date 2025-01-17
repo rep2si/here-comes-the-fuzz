@@ -14,7 +14,7 @@ The script can generate a page that looks like this:
 
 - easily configurable with a single .toml file (see below)
 
-- arbitrary number of search fields and checkboxes (Each can be made to match a field of choice in the csv. Multiple search fields and checkboxes can target the same field, but currently, a single search field cannot target multiple csv filds.)
+- arbitrary number of search fields and checkboxes (Each can be made to match a field of choice in the csv. Multiple search fields and checkboxes can target the same field, but currently, a single search field cannot target multiple csv fields.)
 
 - uses [Fuse.js](https://www.fusejs.io/) for optional fuzzy matching: search fields can be made to match csv contents strictly, or with a configurable tolerance for misspelling.
 
@@ -32,11 +32,11 @@ The script can generate a page that looks like this:
 
 1. Clone this repository or download the [latest release](https://github.com/rep2si/here-comes-the-fuzz/releases/latest).
 
-2. Replace the demo `input.csv` with your own file (or specify the path to your file in the command invocation below.
+2. Replace the demo `input.csv` with your own file (or specify the path to your file in the command invocation below).
 
-3. Edit `config.toml` to suit your needs, (or specify the path to an alternative configuration file, see command invocation below)
+3. Edit `config.toml` to suit your needs, (or specify the path to an alternative configuration file, see command invocation below).
 
-4. Ensure the script is executable (`chmod +x /path/to/downloaded/here-comes-the-fuzz.py` on linux or macos. Replace with the actual path to the script)
+4. Ensure the script is executable (`chmod +x /path/to/downloaded/here-comes-the-fuzz.py` on linux or macos. Replace with the actual path to the script).
 
 5. Run the script: `./here-comes-the-fuzz.py -i input.csv -c config.toml -o output.html` You can omit the arguments if you use these default filenames, and the files are in the same directory as the script.
 
@@ -123,15 +123,15 @@ title = "Here comes the fuzz"
 
 Most options should be self-explanatory.
 
-The first section, `[filters]` is where search fields and tickboxes are configured. Each subsection (e.g. `[filters.uid]` or `[filters.name]` will generate either one search field, or one set of checkboxes. There is no limit to the number subsections you can include, and the second part of the subsection name is arbitrary, i.e. you can use any `XXXX` in  `[filters.XXXX]`.
+The first section, `[filters]` is where search fields and tickboxes are configured. Each subsection (e.g., `[filters.uid]` or `[filters.name]`) will generate either one search field, or one set of checkboxes. There is no limit to the number of subsections you can include, and the second part of the subsection name is arbitrary, i.e. you can use any `XXXX` in  `[filters.XXXX]`.
 
 In each subsection, you must specify:
 
-- `csv_col`: the variable / column in the csv which this block will target
+- `csv_col`: the variable / column in the csv which this block will target.
 
 - `type`: can be one of `"fuzzy"` (search with tolerance for misspelling), `"filter"` (search with no tolerance for misspelling) or `"checkbox"` (tickboxes, useful for categorical data with limited levels). 
 
-- `text`: This is the hint text that will be included in the search field before the user enters anything, or the text that will be included next to the checkboxes
+- `text`: This is the hint text that will be included in the search field before the user enters anything, or the text that will be included next to the checkboxes.
 
 - for `"fuzzy"` types, you must specify a `threshold` value between 0.0 and 1.0. This is the [tolerance for misspelling](https://www.fusejs.io/api/options.html#threshold) that is passed to fuse.js behind the scenes. A threshold of 0.0 requires a perfect match (equivalent to `type = "filter"`) and a threshold of 1.0 matches anything.
 
@@ -161,12 +161,12 @@ _Note: The description below is most likely of interest only if you are using th
 
 The script should support a fairly wide set of use cases. The demo files (`input.csv` and `config.toml`) demonstrate the use case out of which the script was born: identifying individuals in a community while eliciting social network data.
 
-Imagine the following scenario: having conducted a census in a community of interest, you have a database with information about all its residents. The demo `input.csv` file on this repository contains fabricated data showing what such a database may look like. (Note that in the [rep2si](https://rep2si.github.io/) project, we used this script with databases containing an order of magnitude more observations, and many more variables. The fabricated data in `input.csv` is simplified for demonstration purposes.)
+Imagine the following scenario: having conducted a census in a community of interest, you have a database with information about all its residents. The demo `input.csv` file on this repository contains fabricated data showing what such a database may look like. (Note that in the [rep2si](https://rep2si.github.io/) project, we used this script with databases containing an order of magnitude more observations and many more variables. The fabricated data in `input.csv` is simplified for demonstration purposes.)
 
-While eliciting and identifying alters in a social network survey, you need a reliable way of identifying individuals that community members name as alters. In other words, you need a way of recovering the unique identifier (uid) that you have attributed to each community resident. You cannot rely on names alone because different community residents share the same name, and community residents cannot always recall each other's names precisely. Using this script, you generate an html page that you can, for example, upload to a tablet that you carry in the field, or give to your research assistants. When a respondent names an alter, the page which this script generates allows you to disambiguate them, recover their uid, and easily copy it to the clipboard for pasting in your survey.
+While eliciting and identifying alters in a social network survey, you need a reliable way of identifying individuals that community members name as alters. In other words, you need a way of recovering the unique identifier (uid) that you have attributed to each community resident. You cannot rely on names alone because different community residents share the same name, and community residents cannot always recall each other's names precisely. Using this script, you generate an html page that you can, for example, upload to a tablet that you carry in the field, or give to your research assistants. When a respondent names an alter, the page which this script generates allows you to disambiguate them, recover their uid, and easily copy it to the clipboard for pasting in your survey instrument.
 
 ## Acknowledgements
 
 The generated html file will include [fuse.js](https://www.fusejs.io/) in raw form. The entire script has to be included in the file itself as modern browsers' cross-scripting protection prevents loading this from a separate local file.
 
-Many thanks to [Janey Tietz](https://github.com/janeytietz/), whose helped draft an html page with a structure similar to what this script generates.
+Many thanks to [Janey Tietz](https://github.com/janeytietz/), who helped draft an html page with a structure similar to what this script generates.
