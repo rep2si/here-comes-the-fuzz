@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-# TODO check with multiple filters
-# TODO re-write so we only iterate over list of filters once in the beginning
+# TODO re-write loops so we only iterate over list of filters once in the beginning
 # TODO in an ideal world, filter before fuzzy, as that would be computationally superior
 
 import os, argparse, csv, json, tomllib
@@ -227,31 +226,12 @@ if checkbox_n > 0 :
         fconf = config ["filters"][f]
         if fconf["type"] == "checkbox":
                 for o in fconf["options"] :
-                    # inputs += '            <label><input type="checkbox" id="%s%sCheckbox" value="%s">%s</label>\n' % (f, o, o, o)
                     fuse +="""
            // filter for %s %s
            filteredResults = filteredResults.filter(item => {
                return !(!(%s%sCheckbox.checked) && item.%s === "%s")
            });
                     """ % (f, o, f, o, fconf["csv_col"], o)
-
-      #     // Further filter results based on other active criteria
-      #     const filteredResults = combinedResults.filter(item => {
-      #         const matchesID = indivIDQuery ? item.IndivID?.toLowerCase().includes(indivIDQuery) : true;
-      #         const matchesGender =
-      #             (maleChecked && item.gender?.toLowerCase() === "male") ||
-      #             (femaleChecked && item.gender?.toLowerCase() === "female") ||
-      #             (!maleChecked && !femaleChecked); // Include all if no checkbox is selected
-      #         const matchesLocation = locationQuery ? item.location?.toLowerCase().includes(locationQuery) : true;
-
-      #         // Include if all active criteria are met
-      #         return matchesID && matchesGender && matchesLocation;
-      #     });
-
-      #     // Display results
-      #     displayResults(filteredResults);
-      # };
-
 
 fuse += """
 
@@ -345,14 +325,18 @@ copy_function = r""";
 """
 
 body_2 = """
+    // Perform initial search (so all results displayed by default)
+    performSearch()
     </script>
 </body>
 </html>"""
 
 # fuzz_me_good = first_bit + jsonified + last_bit
 fuzz_me_good = head + body_1 + inputs + table + fuse + copy_function + body_2
-print(fuzz_me_good)
+# print(fuzz_me_good)
 
 # Write out the result
 with open(output, "w", encoding="utf-8") as file:
     file.write(fuzz_me_good)
+
+print("File %s written." % (output))

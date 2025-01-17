@@ -5,11 +5,11 @@
     type = "filter"
     text = "Filter by identifier"
 
-    # [filters.name]
-    # csv_col = "name"
-    # type = "fuzzy"
-    # text = "Fuzzy search by full name"
-    # threshold = 0.4
+    [filters.name]
+    csv_col = "name"
+    type = "fuzzy"
+    text = "Fuzzy search by full name"
+    threshold = 0.4
 
     [filters.gender]
     csv_col = "gender"
@@ -17,11 +17,11 @@
     text = "Filter by gender" # set to "" if no text desired
     options = ["m", "f"] # ensure these correspond to values in csv
 
-    # [filters.occupation]
-    # csv_col = "occupation"
-    # type = "fuzzy"
-    # text = "Fuzzy search by occupation"
-    # threshold = 0.4
+    [filters.occupation]
+    csv_col = "occupation"
+    type = "fuzzy"
+    text = "Fuzzy search by occupation"
+    threshold = 0.4
 
 [table]
 
