@@ -4,11 +4,11 @@ This script takes a csv file as input. It generates a self-contained, easily con
 
 From a csv with the following structure (all data generated for demo purposes):
 
-![A screenshot of the demo csv file](screenshot-csv.png "Screenshot of demo csv file")
+![(A screenshot of the demo csv file)](screenshot-csv.png "Screenshot of demo csv file")
 
-The script can generate a page that looks like this:
+The script can generate a page that works like this:
 
-![A screenshot of the html page output by this script](screenshot.png "Screenshot of resutling page")
+![(A GIF of the html page output of this script)](fuzz-demo.gif "Demo of resulting page")
 
 ## Features
 
@@ -151,7 +151,7 @@ In each sub-section, you must specify:
 
 - for `"copy_button"` types, you must specify `"button_text"` (the text that will be shown on the button) and `"csv_col_to_copy"` (the csv variable to copy).
 
-- for `"image"` types, the csv should contain the path to the image. You must also specify `"img_max_height"` and `"img_max_width"`. Both of these values are in pixels.
+- for `"image"` types, the csv should contain the path to the image. You must also specify `"img_max_height"` and `"img_max_width"`. Both of these values are in pixels. Note that the path should either be absolute or relative _to where the output.html file is located_. If you move the output.html file onto a tablet, those images (with appropriate paths in the original csv) will need to be copied over, as well. 
 
 There is a third section, `[misc]`. This only contains the option `title`, which is a string that will be used as the page title.
 
@@ -167,6 +167,8 @@ While eliciting and identifying alters in a social network survey, you need a re
 
 ## Acknowledgements
 
-The generated html file will include [fuse.js](https://www.fusejs.io/) in raw form. The entire script has to be included in the file itself as modern browsers' cross-scripting protection prevents loading this from a separate local file.
+The generated html file will include [fuse.js](https://www.fusejs.io/) in raw form. The entire script has to be included in the file itself as modern browsers' cross-scripting protection prevents loading this from a separate local file. 
+
+Demo photos generated with [Face Studio](https://facestudio.app/). 
 
 Many thanks to [Janey Tietz](https://github.com/janeytietz/), who helped draft an html page with a structure similar to what this script generates.
