@@ -10,6 +10,8 @@ The script can generate a page that works like this:
 
 ![(A GIF of the html page output of this script)](fuzz-demo.gif "Demo of resulting page")
 
+You can try it for yourself at [https://rep2si.github.io/fuzz](https://rep2si.github.io/fuzz)! 
+
 ## Features
 
 - easily configurable with a single .toml file (see below)
@@ -68,7 +70,7 @@ All configuration is done by editing `config.toml`.
     csv_col = "occupation"
     type = "fuzzy"
     text = "Fuzzy search by occupation"
-    threshold = 0.4
+    threshold = 0.3
 
 [table]
 

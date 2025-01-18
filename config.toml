@@ -21,7 +21,7 @@
     csv_col = "occupation"
     type = "fuzzy"
     text = "Fuzzy search by occupation"
-    threshold = 0.4
+    threshold = 0.3
 
 [table]
 
